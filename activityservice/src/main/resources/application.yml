@@ -10,3 +10,7 @@ server:
   port: 8082
 
 #mongodb://localhost:27017/
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
