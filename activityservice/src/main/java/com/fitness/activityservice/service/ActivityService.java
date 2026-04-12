@@ -4,19 +4,31 @@ import com.fitness.activityservice.model.Activity;
 import com.fitness.activityservice.payload.ActivityRequest;
 import com.fitness.activityservice.payload.ActivityResponse;
 import com.fitness.activityservice.repository.ActivityRepository;
+import com.netflix.discovery.converters.Auto;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ActivityService {
 
     @Autowired
     private ActivityRepository activityRepository;
     @Autowired
     private UserValidationService userValidationService;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
 
     public ActivityResponse trackActivity(ActivityRequest request) {
 
@@ -32,9 +44,14 @@ public class ActivityService {
                 .additionalMetrics(request.getAdditionalMetrics())
                 .build();
 
-        System.out.println("Saving activity: " + activity);  // ← add this
         Activity savedActivity = activityRepository.save(activity);
-        System.out.println("Saved with ID: " + savedActivity.getId());  // ← add this
+
+        // Publish to RabbitMQ
+        try{
+            rabbitTemplate.convertAndSend(exchange, routingKey, savedActivity);
+        } catch (Exception e) {
+            log.error("Failed to publish the activity");
+        }
 
         return mapToResponse(savedActivity);
     }
