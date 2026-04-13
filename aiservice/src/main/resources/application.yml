@@ -1,15 +1,12 @@
 spring:
   application:
     name: aiservice
-
 server:
   port: 8083
-
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
-
   data:
     mongodb:
       uri: mongodb://localhost:27017/fitness_recommendation_db
@@ -19,7 +16,6 @@ eureka:
     port: 5672
     username: guest
     password: guest
-
 rabbitmq:
   exchange:
     name: fitness.exchange
@@ -27,3 +23,7 @@ rabbitmq:
     name: activity.queue
   routing:
     key: activity.tracking
+gemini:
+  api:
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=
+    key: AIzaSyC2HnZnlyPMmLvxPE1dwbGzQP8jIyw8JRQ
