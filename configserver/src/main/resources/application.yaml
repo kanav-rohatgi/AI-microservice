@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: configserver
+  profiles:          # ← "profiles" not "profile"
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/config   # ← "search-locations" not "search-location"
+
+server:
+  port: 8888
