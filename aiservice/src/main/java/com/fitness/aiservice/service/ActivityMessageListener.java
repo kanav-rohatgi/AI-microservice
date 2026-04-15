@@ -18,10 +18,17 @@ public class ActivityMessageListener {
 
     @RabbitListener(queues = "activity.queue")
     public void processActivity(Activity activity){
-        log.info("received activity for processing with id: {}", activity.getId());
-        //log.info("Generated Recommendation: {}", activityAIService.generateRecommendation(activity));
-        Recommendation recommendation = activityAIService.generateRecommendation(activity);
-        recommendationRepository.save(recommendation);
+        try {
+            log.info("received activity for processing with id: {}", activity.getId());
+
+            Recommendation recommendation = activityAIService.generateRecommendation(activity);
+            recommendationRepository.save(recommendation);
+
+        } catch (Exception e) {
+            log.error("Failed to process activity: {}", e.getMessage());
+
+            // IMPORTANT: do NOT rethrow → prevents infinite retry
+        }
     }
 
 }
